@@ -10,6 +10,7 @@ public class Player_movement : MonoBehaviour
 
     public Text press_but_text;
     public Image Back_ground;
+    public Text task_text;
 
     public float speed = 5f;
     public float max_speed = 7f;
@@ -55,10 +56,12 @@ public class Player_movement : MonoBehaviour
         {
             is_busy = false;
             Back_ground.gameObject.SetActive(false);
+            task_text.gameObject.SetActive(false);
         }
         else if (can_interact && Input.GetKeyDown(KeyCode.E))
         {
             Back_ground.gameObject.SetActive(true);
+            task_text.gameObject.SetActive(true);
             player_rb.velocity = Vector2.zero;
             is_busy = true;
         }
