@@ -9,6 +9,8 @@ TagManager:
   - Background
   - Obstacle
   - Ventilation
+  - Ladder
+  - Box
   layers:
   - Default
   - TransparentFX

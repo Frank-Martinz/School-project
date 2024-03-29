@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,10 +10,18 @@ public class Player_movement : MonoBehaviour
 {
     public GameObject player;
     public Rigidbody2D player_rb;
+    public SpriteRenderer player_sprite;
+    public Animator player_animator;
+
+    public AnimationClip player_stay_anim;
+    public AnimationClip player_running_anim;
+    public AnimationClip player_sliding_anim;
+    public AnimationClip player_give_up;
 
     public Text press_but_text;
     public Image Back_ground;
     public Text task_text;
+    public Image ending_game_shield;
 
     public float speed = 5f;
     public float max_speed = 7f;
@@ -19,6 +30,7 @@ public class Player_movement : MonoBehaviour
     public float cooldown = 0f;
 
     public bool CanJump = false;
+    public bool CanClimb = false;
     public bool can_interact = false;
     public bool is_busy = false;
     public bool is_touching_obst = false;
@@ -28,23 +40,29 @@ public class Player_movement : MonoBehaviour
     public bool near_to_vent = false;
     public bool in_vent = false;
     public bool level_completed = false;
+    public bool game_over = false;
 
+    public GameObject last_touch;
+    public float last_touch_cooldown;
 
     private void OnCollisionEnter2D(Collision2D other) 
     {
         if (other.gameObject.tag == "Ground")
         {
             CanJump = true;
+            last_touch = null;
         }
-        if (other.gameObject.tag == "Obstacle")
+        if (other.gameObject.tag == "Obstacle" && last_touch != other.gameObject)
         {
             CanJump = true;
             is_touching_obst = true;
+            last_touch = other.gameObject;
             player_rb.velocity = new Vector2(0, 0);
             right_side_obst = false;
             left_side_obst = false;
             top_side_obst = false;
             GameObject wall = other.gameObject;
+            last_touch_cooldown = 1f;
             float top_wall = wall.transform.position.y + (wall.transform.localScale.y / 2);
             float player_bottom = player.transform.position.y - (player.transform.localScale.y / 2) + 0.1f; 
             if (top_wall < player_bottom)
@@ -63,6 +81,11 @@ public class Player_movement : MonoBehaviour
                 cooldown = 0;
             }
         }
+        if (other.gameObject.tag == "Ladder")
+        {
+            player_rb.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionY;
+            CanClimb = true;
+        }
 
     }
 
@@ -71,7 +94,7 @@ public class Player_movement : MonoBehaviour
         {
             CanJump = true;
         }
-        if (other.gameObject.tag == "Obstacle")
+        if (other.gameObject.tag == "Obstacle" && last_touch != other.gameObject)
         {
             CanJump = true;
         }
@@ -90,6 +113,13 @@ public class Player_movement : MonoBehaviour
             left_side_obst = false;
             top_side_obst = false;
         }
+        if (other.gameObject.tag == "Ladder")
+        {   
+            Debug.Log(other.gameObject.tag);
+            CanClimb = false;
+            player_rb.constraints = RigidbodyConstraints2D.None;
+
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
@@ -107,6 +137,11 @@ public class Player_movement : MonoBehaviour
             press_but_text.gameObject.SetActive(true);
             press_but_text.text = "Нажми E чтобы залезть в вентиляцию";
         }
+
+        if (other.gameObject.tag == "Finish")
+        {
+            LeaveTheLevel();
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other) {
@@ -121,10 +156,14 @@ public class Player_movement : MonoBehaviour
             press_but_text.gameObject.SetActive(false);
             press_but_text.text = "Нажми E чтобы залезть в вентиляцию";
         }
-
     }
 
-    private void Update() {
+    private void Update() 
+    {
+        if (level_completed)
+        {
+            ending_game_shield.color = new Color(0, 0, 0, ending_game_shield.color.a + 0.001f);
+        }
         if (is_busy && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.E)))
         {
             LeaveComputer();
@@ -145,6 +184,7 @@ public class Player_movement : MonoBehaviour
             player.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             max_speed = 3f;
             player.layer = VentLayer;
+            player_rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
         else if (near_to_vent && Input.GetKeyDown(KeyCode.E) && in_vent)
         {
@@ -154,23 +194,39 @@ public class Player_movement : MonoBehaviour
             player.transform.localScale = new Vector3(1f, 2f, 1f);
             max_speed = 7f;
             player.layer = DefaultLayer;
+            player_rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
     }
 
     private void FixedUpdate() 
     {
-        if (!is_busy)
-        {        
-            if (Input.GetKey(KeyCode.D))
+        if (!game_over)
+        {
+            if (!is_busy)
+            {        
+                if (Input.GetKey(KeyCode.D))
                 {
                     player_rb.AddForce(Vector2.right * speed);
+                    player_sprite.flipX = false;
                 }
-
                 if (Input.GetKey(KeyCode.A))
                 {
                     player_rb.AddForce(Vector2.left * speed);
+                    player_sprite.flipX = true; 
                 }
-
+                if (Input.GetKey(KeyCode.Space) && CanClimb)
+                {
+                    player_rb.AddForce(Vector2.up * 10f);
+                    player_rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                }
+                else if (Input.GetKey(KeyCode.LeftShift) && CanClimb)
+                {
+                    player_rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                }
+                else if (CanClimb)
+                {
+                    player_rb.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionY;
+                }
                 if (Input.GetKey(KeyCode.Space) && CanJump)
                 {
                     if (cooldown <= 0) 
@@ -189,21 +245,29 @@ public class Player_movement : MonoBehaviour
                         }
                     }
                 }
-        }
-        if (cooldown > 0) {cooldown -= Time.deltaTime;}
-        if (player_rb.velocity.x > max_speed)
-        {
-            player_rb.velocity = new Vector2(max_speed, player_rb.velocity.y);
-        }
-        else if (player_rb.velocity.x < -max_speed)
-        {
-            player_rb.velocity = new Vector2(-max_speed, player_rb.velocity.y);
-        }
-        if (is_touching_obst)
-        {
-            if (player_rb.velocity.y > 0 && player_rb.velocity.x == 0)
+            }
+            if (cooldown > 0) {cooldown -= Time.deltaTime;}
+            if (is_touching_obst) { SetPlayerAnimation(false, true);}
+            else if (player_rb.velocity.x > 0.05f || player_rb.velocity.x < -0.05f) { SetPlayerAnimation(true); }
+            else {SetPlayerAnimation(false);}
+            if (player_rb.velocity.x > max_speed)
             {
-                player_rb.velocity = new Vector2(player_rb.velocity.y * 0.8f, 0);
+                player_rb.velocity = new Vector2(max_speed, player_rb.velocity.y);
+            }
+            else if (player_rb.velocity.x < -max_speed)
+            {
+                player_rb.velocity = new Vector2(-max_speed, player_rb.velocity.y);
+            }
+            if (player_rb.velocity.y > 3f && CanClimb)
+            {
+                player_rb.velocity = new Vector2(player_rb.velocity.x, 3f);
+            }
+            if (is_touching_obst)
+            {
+                if (player_rb.velocity.y > 0 && player_rb.velocity.x == 0)
+                {
+                    player_rb.velocity = new Vector2(player_rb.velocity.y * 0.8f, 0);
+                }
             }
         }
     }
@@ -215,9 +279,33 @@ public class Player_movement : MonoBehaviour
         task_text.gameObject.SetActive(false);
         if (level_comp)
         {
-            level_completed = true;
             can_interact = false;
             press_but_text.gameObject.SetActive(false);
         }
+    }
+
+    void LeaveTheLevel()
+    {
+        level_completed = true;
+        Task.Delay(new TimeSpan(0, 0, 3)).ContinueWith(o => { Test(); });
+    }
+
+    void SetPlayerAnimation(bool movement_buttons = false, bool sliding = false, bool give_up = false)
+    {   
+        if (give_up) { player_animator.Play(player_give_up.name); }
+        else if (sliding) { player_animator.Play(player_sliding_anim.name); }
+        else if (movement_buttons){ player_animator.Play(player_running_anim.name); }
+        else {player_animator.Play(player_stay_anim.name);}
+    }
+
+    void Test()
+    {
+        Debug.Log("переход на следующий уровень");
+    }
+
+    public void PlayerGiveUp()
+    {
+        game_over = true;
+        SetPlayerAnimation(false, false, true);
     }
 }
