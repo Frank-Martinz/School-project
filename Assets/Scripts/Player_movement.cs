@@ -73,11 +73,13 @@ public class Player_movement : MonoBehaviour
             else if (other.gameObject.transform.position.x < player.transform.position.x)
             {
                 right_side_obst = true;
+                player_sprite.flipX = true;
                 cooldown = 0;
             }
             else 
             {
                 left_side_obst = true;
+                player_sprite.flipX = false;
                 cooldown = 0;
             }
         }
