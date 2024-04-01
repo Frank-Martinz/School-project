@@ -13,10 +13,14 @@ public class Player_movement : MonoBehaviour
     public SpriteRenderer player_sprite;
     public Animator player_animator;
 
+    public FinishLvl finish_lvl_script;
+
     public AnimationClip player_stay_anim;
     public AnimationClip player_running_anim;
     public AnimationClip player_sliding_anim;
     public AnimationClip player_give_up;
+
+    public Canvas menu_can;
 
     public Text press_but_text;
     public Image Back_ground;
@@ -45,6 +49,11 @@ public class Player_movement : MonoBehaviour
     public GameObject last_touch;
     public float last_touch_cooldown;
 
+    void Start()
+    {
+        Time.timeScale = 1f;
+    }
+
     private void OnCollisionEnter2D(Collision2D other) 
     {
         if (other.gameObject.tag == "Ground")
@@ -64,7 +73,7 @@ public class Player_movement : MonoBehaviour
             GameObject wall = other.gameObject;
             last_touch_cooldown = 1f;
             float top_wall = wall.transform.position.y + (wall.transform.localScale.y / 2);
-            float player_bottom = player.transform.position.y - (player.transform.localScale.y / 2) + 0.1f; 
+            float player_bottom = player.transform.position.y - (player.transform.localScale.y / 2);
             if (top_wall < player_bottom)
             {
                 is_touching_obst = false;
@@ -144,6 +153,11 @@ public class Player_movement : MonoBehaviour
         {
             LeaveTheLevel();
         }
+
+        if (other.gameObject.tag == "Obstacle")
+        {
+            CanJump = true;
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other) {
@@ -158,10 +172,19 @@ public class Player_movement : MonoBehaviour
             press_but_text.gameObject.SetActive(false);
             press_but_text.text = "Нажми E чтобы залезть в вентиляцию";
         }
+        if (other.gameObject.tag == "Obstacle")
+        {
+            CanJump = false;
+        }
     }
 
     private void Update() 
     {
+        if (Input.GetKeyDown(KeyCode.Escape) && !level_completed)
+        {
+            menu_can.gameObject.SetActive(!menu_can.gameObject.activeSelf);
+            Time.timeScale = Convert.ToInt16(!menu_can.gameObject.activeSelf);
+        }
         if (level_completed)
         {
             ending_game_shield.color = new Color(0, 0, 0, ending_game_shield.color.a + 0.001f);
@@ -193,7 +216,7 @@ public class Player_movement : MonoBehaviour
             in_vent = false;
             int DefaultLayer = LayerMask.NameToLayer("Default");
             player.transform.Translate(new Vector3(0, -1f, 0));
-            player.transform.localScale = new Vector3(1f, 2f, 1f);
+            player.transform.localScale = new Vector3(0.8f, 2f, 1f);
             max_speed = 7f;
             player.layer = DefaultLayer;
             player_rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -289,6 +312,7 @@ public class Player_movement : MonoBehaviour
     void LeaveTheLevel()
     {
         level_completed = true;
+        finish_lvl_script.SaveData();
         Task.Delay(new TimeSpan(0, 0, 3)).ContinueWith(o => { Test(); });
     }
 
@@ -302,7 +326,7 @@ public class Player_movement : MonoBehaviour
 
     void Test()
     {
-        Debug.Log("переход на следующий уровень");
+        Time.timeScale = 0f;
     }
 
     public void PlayerGiveUp()

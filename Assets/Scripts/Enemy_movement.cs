@@ -10,6 +10,8 @@ public class Enemy_movement : MonoBehaviour
     public bool go_left = true;
     public bool go_right = false;
 
+    public SpriteRenderer enemy_sprite;
+
     public Player_movement pm;
 
     void FixedUpdate()
@@ -18,11 +20,13 @@ public class Enemy_movement : MonoBehaviour
         {
             hit = Physics2D.Raycast(transform.position, Vector2.left, 6f);
             enemy.AddForce(Vector2.left * 10f); 
+            enemy_sprite.flipX = true;
         }
         else if (go_right)
         { 
             hit = Physics2D.Raycast(transform.position, Vector2.right, 6f);
             enemy.AddForce(Vector2.right * 10f);
+            enemy_sprite.flipX = false;
         }
         
         if (hit)
