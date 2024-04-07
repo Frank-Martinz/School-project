@@ -31,7 +31,7 @@ public class Enemy_movement : MonoBehaviour
         
         if (hit)
         {
-            if (hit.collider.gameObject.tag == "Obstacle" || hit.collider.gameObject.tag == "Ladder")
+            if (hit.collider.gameObject.tag == "Obstacle" || hit.collider.gameObject.tag == "Ladder" || hit.collider.gameObject.tag == "Ground")
             {
                 go_left = !go_left;
                 go_right = !go_right;

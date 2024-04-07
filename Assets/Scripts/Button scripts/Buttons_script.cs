@@ -18,7 +18,7 @@ public class Buttons_script : MonoBehaviour
     
     public void CheckAnswer()
     { 
-        string player_answer = answer_field.text;
+        string player_answer = answer_field.text.ToUpper();
         answer_field.text = "";
         if (actual_answer.Equals(player_answer))
         {

@@ -8,8 +8,6 @@ using UnityEngine.UI;
 public class Start_new_game_button : MonoBehaviour
 {
     public TextAsset textJSON;
-
-    public PlayerInfo pl_info = new PlayerInfo();
     
     [System.Serializable]
     public class PlayerInfo
@@ -17,24 +15,20 @@ public class Start_new_game_button : MonoBehaviour
         public int current_lvl;
     }
 
-
-    void Start()
-    {
-        pl_info = JsonUtility.FromJson<PlayerInfo>(textJSON.text);
-    }
-
     public void StartNewGame()
     {
-        PlayerInfo pl_info = new PlayerInfo();
-        pl_info.current_lvl = 1;
+        PlayerInfo new_info = new PlayerInfo();
+        new_info.current_lvl = 1;
 
-        string json = JsonUtility.ToJson(pl_info, true);
+        string json = JsonUtility.ToJson(new_info, true);
         File.WriteAllText(Application.dataPath + "/Data/Player_info.json", json);
         SceneManager.LoadScene(1);
     }
 
     public void ContinueGame()
     {
+        PlayerInfo pl_info = JsonUtility.FromJson<PlayerInfo>(textJSON.text);
+        
         SceneManager.LoadScene(pl_info.current_lvl);
     }
 }

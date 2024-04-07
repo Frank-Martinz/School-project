@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +17,7 @@ public class Player_movement : MonoBehaviour
     public AnimationClip player_give_up;
 
     public Canvas menu_can;
+    public Canvas go_next_lvl;
 
     public Text press_but_text;
     public Image Back_ground;
@@ -180,7 +177,7 @@ public class Player_movement : MonoBehaviour
 
     private void Update() 
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && !level_completed)
+        if (Input.GetKeyDown(KeyCode.Escape) && !level_completed && !is_busy)
         {
             menu_can.gameObject.SetActive(!menu_can.gameObject.activeSelf);
             Time.timeScale = Convert.ToInt16(!menu_can.gameObject.activeSelf);
@@ -225,6 +222,7 @@ public class Player_movement : MonoBehaviour
 
     private void FixedUpdate() 
     {
+        player_rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         if (!game_over)
         {
             if (!is_busy)
@@ -309,11 +307,18 @@ public class Player_movement : MonoBehaviour
         }
     }
 
+    void Test()
+    {
+        Time.timeScale = 0f;
+        go_next_lvl.gameObject.SetActive(true);
+        game_over = true;
+    }
+
     void LeaveTheLevel()
     {
         level_completed = true;
         finish_lvl_script.SaveData();
-        Task.Delay(new TimeSpan(0, 0, 3)).ContinueWith(o => { Test(); });
+        Invoke("Test", 3);
     }
 
     void SetPlayerAnimation(bool movement_buttons = false, bool sliding = false, bool give_up = false)
@@ -322,11 +327,6 @@ public class Player_movement : MonoBehaviour
         else if (sliding) { player_animator.Play(player_sliding_anim.name); }
         else if (movement_buttons){ player_animator.Play(player_running_anim.name); }
         else {player_animator.Play(player_stay_anim.name);}
-    }
-
-    void Test()
-    {
-        Time.timeScale = 0f;
     }
 
     public void PlayerGiveUp()
