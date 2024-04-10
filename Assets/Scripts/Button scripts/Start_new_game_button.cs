@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,28 +8,20 @@ using UnityEngine.UI;
 
 public class Start_new_game_button : MonoBehaviour
 {
-    public TextAsset textJSON;
-    
-    [System.Serializable]
-    public class PlayerInfo
-    {
-        public int current_lvl;
-    }
+    public Canvas ChoosingLvlCanvas;
+    public Canvas Menu;
 
-    public void StartNewGame()
-    {
-        PlayerInfo new_info = new PlayerInfo();
-        new_info.current_lvl = 1;
-
-        string json = JsonUtility.ToJson(new_info, true);
-        File.WriteAllText(Application.dataPath + "/Data/Player_info.json", json);
-        SceneManager.LoadScene(1);
+    public void OpenChoosingLvlCanvas()
+    {  
+       ChoosingLvlCanvas.gameObject.SetActive(true); 
+       Menu.gameObject.SetActive(false);
     }
 
     public void ContinueGame()
     {
-        PlayerInfo pl_info = JsonUtility.FromJson<PlayerInfo>(textJSON.text);
-        
-        SceneManager.LoadScene(pl_info.current_lvl);
+        string path = @"Assets\Data\Player_info.txt";
+        string[] text = File.ReadAllLines(path);
+        int current_lvl = Convert.ToInt16(text[0].Split(':')[1]);
+        SceneManager.LoadScene(current_lvl);
     }
 }

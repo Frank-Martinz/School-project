@@ -5,30 +5,21 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System;
+
 public class FinishLvl : MonoBehaviour
 {
-    public TextAsset textJSON;
-
-    public PlayerInfo pl_info = new PlayerInfo();
-    
-    [System.Serializable]   
-    public class PlayerInfo
-    {
-        public int current_lvl;
-    }
-
-
+    public int next_lvl;
 
     public void SaveData()
     {   
-        PlayerInfo pl_info = JsonUtility.FromJson<PlayerInfo>(textJSON.text);
-
-        if (pl_info.current_lvl > 12) { pl_info.current_lvl = 12; }
-
-        PlayerInfo updated_info = new PlayerInfo();
-        updated_info.current_lvl = pl_info.current_lvl + 1;
-        Debug.Log($"Сохранён уровень: {updated_info.current_lvl}");
-        string json = JsonUtility.ToJson(updated_info, true);
-        File.WriteAllText(Application.dataPath + "/Data/Player_info.json", json);
+        string path = @"Assets\Data\Player_info.txt";
+        string[] text = File.ReadAllLines(path);
+        int finished_lvl = Convert.ToInt16(text[1].Split(':')[1]);
+        string saving_data;
+        if (next_lvl > finished_lvl) { saving_data = $"player_actual_lvl:{next_lvl}\nplayer_has_finished_lvl:{next_lvl}"; }
+        else { saving_data = $"player_actual_lvl:{next_lvl}\nplayer_has_finished_lvl:{finished_lvl}";}
+        
+        File.WriteAllText(path, saving_data);
     }
 }

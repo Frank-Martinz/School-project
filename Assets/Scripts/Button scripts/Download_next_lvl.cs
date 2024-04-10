@@ -3,27 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
+using System;
 
 
 public class Download_next_lvl : MonoBehaviour
 {
-    public TextAsset textJSON;
-
-    public PlayerInfo pl_info = new PlayerInfo();
-    
-    [System.Serializable]
-    public class PlayerInfo
-    {
-        public int current_lvl;
-    }
+    public int next_lvl;
 
     public void StartNextLvl()
     {
-        PlayerInfo pl_info = JsonUtility.FromJson<PlayerInfo>(textJSON.text);
-        if (pl_info.current_lvl > 12) { pl_info.current_lvl = 12; }
+        string path = @"Assets\Data\Player_info.txt";
+        string[] text = File.ReadAllLines(path);
+        int current_lvl = Convert.ToInt16(text[0].Split(':')[1]);
+        if (current_lvl > 12) { current_lvl = 12; }
 
-        Debug.Log($"{pl_info.current_lvl + 1}: загружается уровень");
-        if (pl_info.current_lvl != 12) { SceneManager.LoadScene(pl_info.current_lvl + 1);}
+        if (current_lvl != 12) { SceneManager.LoadScene(next_lvl);}
         else {SceneManager.LoadScene(0);}
     }
 }
