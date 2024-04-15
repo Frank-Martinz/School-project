@@ -11,6 +11,7 @@ TagManager:
   - Ventilation
   - Ladder
   - Box
+  - Falling_obs
   layers:
   - Default
   - TransparentFX

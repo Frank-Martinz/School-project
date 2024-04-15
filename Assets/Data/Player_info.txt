@@ -1,2 +1,2 @@
-player_actual_lvl:3
-player_has_finished_lvl:3
+player_actual_lvl:2
+player_has_finished_lvl:4

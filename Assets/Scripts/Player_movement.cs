@@ -18,6 +18,7 @@ public class Player_movement : MonoBehaviour
 
     public Canvas menu_can;
     public Canvas go_next_lvl;
+    public Canvas game_over_canvas;
 
     public Text press_but_text;
     public Image Back_ground;
@@ -94,6 +95,11 @@ public class Player_movement : MonoBehaviour
             player_rb.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionY;
             CanClimb = true;
         }
+        if (other.gameObject.tag == "Falling_obs")
+        {
+            ending_game_shield.color = new Color(0, 0, 0, 1);
+            ShowGameOverCan();
+        }
 
     }
 
@@ -123,7 +129,6 @@ public class Player_movement : MonoBehaviour
         }
         if (other.gameObject.tag == "Ladder")
         {   
-            Debug.Log(other.gameObject.tag);
             CanClimb = false;
             player_rb.constraints = RigidbodyConstraints2D.None;
 
@@ -155,6 +160,10 @@ public class Player_movement : MonoBehaviour
         {
             CanJump = true;
         }
+        if (other.gameObject.tag == "Falling_obs")
+        {
+            other.gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other) {
@@ -184,7 +193,7 @@ public class Player_movement : MonoBehaviour
         }
         if (level_completed)
         {
-            ending_game_shield.color = new Color(0, 0, 0, ending_game_shield.color.a + 0.001f);
+            ending_game_shield.color = new Color(0, 0, 0, ending_game_shield.color.a + 0.01f);
         }
         if (is_busy && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.E)))
         {
@@ -329,9 +338,16 @@ public class Player_movement : MonoBehaviour
         else {player_animator.Play(player_stay_anim.name);}
     }
 
+    void ShowGameOverCan()
+    {
+        game_over_canvas.gameObject.SetActive(true);
+    }
+
     public void PlayerGiveUp()
     {
         game_over = true;
         SetPlayerAnimation(false, false, true);
+        level_completed = true;
+        Invoke("ShowGameOverCan", 3);
     }
 }
