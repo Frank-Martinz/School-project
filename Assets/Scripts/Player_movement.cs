@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -43,7 +44,9 @@ public class Player_movement : MonoBehaviour
     public bool in_vent = false;
     public bool level_completed = false;
     public bool game_over = false;
+    public bool player_has_key = false;
 
+    public GameObject door_obj;
     public GameObject last_touch;
     public float last_touch_cooldown;
 
@@ -131,7 +134,6 @@ public class Player_movement : MonoBehaviour
         {   
             CanClimb = false;
             player_rb.constraints = RigidbodyConstraints2D.None;
-
         }
     }
 
@@ -164,6 +166,22 @@ public class Player_movement : MonoBehaviour
         {
             other.gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
         }
+        if (other.gameObject.tag == "Key")
+        {
+            other.gameObject.SetActive(false);
+            player_has_key = true;
+        }
+        if (other.gameObject.tag == "Door")
+        {
+            press_but_text.gameObject.SetActive(true);
+            if (player_has_key)
+            { 
+                press_but_text.text = "Нажми E чтобы открыть дверь"; 
+                door_obj = other.gameObject;
+            }
+            else { press_but_text.text = "Нужен ключ"; }
+            
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other) {
@@ -176,11 +194,15 @@ public class Player_movement : MonoBehaviour
         {
             near_to_vent = false;
             press_but_text.gameObject.SetActive(false);
-            press_but_text.text = "Нажми E чтобы залезть в вентиляцию";
         }
         if (other.gameObject.tag == "Obstacle")
         {
             CanJump = false;
+        }
+        if (other.gameObject.tag == "Door")
+        {
+            press_but_text.gameObject.SetActive(false);
+            door_obj = null;    
         }
     }
 
@@ -207,6 +229,13 @@ public class Player_movement : MonoBehaviour
             is_busy = true;
         }
 
+        if (door_obj != null && Input.GetKeyDown(KeyCode.E))
+        {
+            door_obj.GetComponent<Door_script>().OpenDoor();
+            door_obj = null;
+            player_has_key = false;
+        }
+
         if (near_to_vent && Input.GetKeyDown(KeyCode.E) && !in_vent)
         {
             in_vent = true;
@@ -227,6 +256,7 @@ public class Player_movement : MonoBehaviour
             player.layer = DefaultLayer;
             player_rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
+
     }
 
     private void FixedUpdate() 
@@ -341,6 +371,7 @@ public class Player_movement : MonoBehaviour
     void ShowGameOverCan()
     {
         game_over_canvas.gameObject.SetActive(true);
+        press_but_text.gameObject.SetActive(false);
     }
 
     public void PlayerGiveUp()

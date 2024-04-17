@@ -12,6 +12,8 @@ TagManager:
   - Ladder
   - Box
   - Falling_obs
+  - Key
+  - Door
   layers:
   - Default
   - TransparentFX
