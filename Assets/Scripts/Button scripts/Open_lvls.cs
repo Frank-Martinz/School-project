@@ -11,7 +11,7 @@ public class Open_lvls : MonoBehaviour
 
     void Start()
     {
-        string path = @"Assets\Data\Player_info.txt";
+        string path = @"Assets/Data/Player_info.txt";
         string[] text = File.ReadAllLines(path);
         int max_lvl = Convert.ToInt16(text[1].Split(':')[1]);
 

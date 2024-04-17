@@ -13,7 +13,7 @@ public class FinishLvl : MonoBehaviour
 
     public void SaveData()
     {   
-        string path = @"Assets\Data\Player_info.txt";
+        string path = @"Assets/Data/Player_info.txt";
         string[] text = File.ReadAllLines(path);
         int finished_lvl = Convert.ToInt16(text[1].Split(':')[1]);
         string saving_data;

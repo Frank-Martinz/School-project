@@ -195,7 +195,7 @@ public class Player_movement : MonoBehaviour
         {
             ending_game_shield.color = new Color(0, 0, 0, ending_game_shield.color.a + 0.01f);
         }
-        if (is_busy && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.E)))
+        if (is_busy && (Input.GetKeyDown(KeyCode.Escape)))
         {
             LeaveComputer();
         }
