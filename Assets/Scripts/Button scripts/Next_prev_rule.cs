@@ -26,7 +26,7 @@ public class Next_prev_rule : MonoBehaviour
     public void Next_rule()
     {
         int id_next_rule = rule_now + 1;
-        if (id_next_rule > 2)
+        if (id_next_rule > 6)
         {
             id_next_rule = 1;
         }
@@ -43,7 +43,7 @@ public class Next_prev_rule : MonoBehaviour
         int id_next_rule = rule_now - 1;
         if (id_next_rule < 1)
         {
-            id_next_rule = 2;
+            id_next_rule = 6;
         }
         var im_rule_now = Rules_canvas.transform.Find($"Rule_{rule_now}");
         var im_rule_next = Rules_canvas.transform.Find($"Rule_{id_next_rule}");

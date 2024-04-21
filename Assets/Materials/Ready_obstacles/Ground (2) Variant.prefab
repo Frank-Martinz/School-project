@@ -17,7 +17,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1324023147382518505, guid: fec1e0f4823db81449315fb38309bf4a, type: 3}
       propertyPath: m_Name
-      value: Ground (2)
+      value: Ground (2) Variant
       objectReference: {fileID: 0}
     - target: {fileID: 1324023147382518506, guid: fec1e0f4823db81449315fb38309bf4a, type: 3}
       propertyPath: m_Size.x
